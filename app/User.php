@@ -37,6 +37,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($user) {
+            $user->profile()->create([
+                'title' => $user->username
+            ]);
+        });
+    }
+
     public function profile()
     {
         return $this->hasOne(Profile::class); // this user has one profile
@@ -45,5 +56,10 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class)->orderBy('created_at', 'DESC'); // this user can have more than one post
+    }
+
+    public function following()
+    {
+        return $this->belongsToMany(Profile::class); // the user will following many profiles
     }
 }
